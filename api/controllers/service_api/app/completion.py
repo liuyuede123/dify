@@ -145,6 +145,13 @@ class ChatStopApi(AppApiResource):
         if app_model.mode != 'chat':
             raise NotChatAppError()
 
+        parser = reqparse.RequestParser()
+        parser.add_argument('user', type=str, location='json')
+        args = parser.parse_args()
+
+        if end_user is None and args['user'] is not None:
+            end_user = create_or_update_end_user_for_user_id(app_model, args['user'])
+
         PubHandler.stop(end_user, task_id)
 
         return {'result': 'success'}, 200
